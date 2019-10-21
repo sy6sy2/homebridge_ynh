@@ -1,0 +1,136 @@
+#!/bin/bash
+
+#=================================================
+# GENERIC START
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+source _common.sh
+source /usr/share/yunohost/helpers
+
+#=================================================
+# LOAD SETTINGS
+#=================================================
+ynh_script_progression --message="Loading installation settings..." --weight=1
+
+app=$YNH_APP_INSTANCE_NAME
+
+domain=$(ynh_app_setting_get --app=$app --key=domain)
+path_url=$(ynh_app_setting_get --app=$app --key=path)
+is_public=$(ynh_app_setting_get --app=$app --key=is_public)
+final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+port=$(ynh_app_setting_get --app=$app --key=port)
+
+#=================================================
+# STANDARD REMOVE
+#=================================================
+# STOP HOMEBRIDGE SERVICE (K)
+#=================================================
+ynh_script_progression --message="Stopping $app service..." --weight=1
+
+ynh_systemd_action --service_name=$app --action="stop"
+
+#=================================================
+# REMOVE SERVICE FROM ADMIN PANEL (J)
+#=================================================
+# Remove a service from the admin panel, added by `yunohost service add`
+if ynh_exec_warn_less yunohost service status $app >/dev/null
+then
+    ynh_script_progression --message="Removing $app service..." --weight=1
+    yunohost service remove $app
+fi
+
+#=================================================
+# REMOVE LOGROTATE CONFIGURATION (I)
+#=================================================
+ynh_script_progression --message="Removing logrotate configuration..." --weight=1
+
+# Remove the app-specific logrotate config
+ynh_remove_logrotate
+
+ynh_script_progression --message="Removing $app log file..." --weight=1
+
+# Remove the log files
+ynh_secure_remove --file="/var/log/$app.log"
+
+# Remove rsyslog config
+ynh_secure_remove --file="/etc/rsyslog.d/$app.conf"
+
+#=================================================
+# REMOVE NGINX CONFIGURATION (H)
+#=================================================
+ynh_script_progression --message="Removing nginx web server configuration..." --weight=1
+
+# Remove the dedicated nginx config
+ynh_remove_nginx_config
+
+#=================================================
+# REMOVE HOMEBRIDGE SERVICE (G)
+#=================================================
+ynh_script_progression --message="Remove $app service..." --weight=1
+
+# Remove the dedicated systemd config
+ynh_remove_systemd_config
+
+#=================================================
+# REMOVE CONFIG FILES (F)
+#=================================================
+
+# Nothing to do?
+
+#=================================================
+# REMOVE HOMEBRIDGE USER AND APP MAIN DIR (E)
+#=================================================
+ynh_script_progression --message="Removing $app main directory and dedicated system user..." --weight=1
+
+# Remove the app directory securely
+ynh_secure_remove --file="$final_path"
+
+# Remove sudoers file
+ynh_secure_remove --file="/etc/sudoers.d/$app"
+
+# Delete a system user
+ynh_system_user_delete --username=hts
+
+#=================================================
+# REMOVE HOMEBRIDGE AND HOMEBRIDGE CONFIG UI X (D)
+#=================================================
+ynh_script_progression --message="Removing Homebridge and Homebridge Config UI X..." --time --weight=11
+
+ynh_use_nodejs
+# $nodejs_path: The absolute path of node for the chosen version.
+# $nodejs_version: Just the version number of node for this app. Stored as 'nodejs_version' in settings.yml.
+
+$nodejs_path/npm uninstall homebridge-config-ui-x homebridge
+
+#=================================================
+# REMOVE NODEJS 10 (C)
+#=================================================
+ynh_script_progression --message="Removing Node.js..." --time --weight=11
+
+ynh_remove_nodejs
+
+#=================================================
+# REMOVE DEPENDENCIES (B)
+#=================================================
+ynh_script_progression --message="Removing dependencies..." --weight=3
+
+# Remove metapackage and its dependencies
+ynh_remove_app_dependencies
+
+#=================================================
+# CLOSE HOMEBRIDGE PORT (A)
+#=================================================
+if yunohost firewall list | grep -q "\- $port$"
+then
+    ynh_script_progression --message="Closing port $port..." --weight=4
+    ynh_exec_warn_less yunohost firewall disallow TCP $port
+fi
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+ynh_script_progression --message="Removal of $app completed" --time --last
+
+
+

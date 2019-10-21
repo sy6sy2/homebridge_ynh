@@ -1,0 +1,2 @@
+if $programname == 'homebridge' then /var/log/homebridge.log
+& stop

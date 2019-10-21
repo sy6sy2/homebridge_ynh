@@ -1,0 +1,24 @@
+{
+    "bridge": {
+        "name": "Homebridge",
+        "username": "CB:22:3D:E2:CE:31",
+        "port": 51826,
+        "pin": "033-44-254"
+    },
+    "accessories": [],
+    "platforms": [
+        {
+            "name": "Config",
+            "port": __PORT__,
+            "auth": "form",
+            "theme": "teal",
+            "restart": "sudo -n systemctl restart homebridge",
+            "tempUnits": "c",
+            "sudo": true,
+            "log": {
+                "method": "systemd"
+            },
+            "platform": "config"
+        }
+    ]
+}
