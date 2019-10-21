@@ -8,6 +8,10 @@
 > *This package allow you to install Homebridge and Homebridge Config UI X quickly and simply on a YunoHost server.  
 If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to know how to install and enjoy it.*
 
+## Important point to read before installing
+
+**Homebridge** require a dedicated **root domain**, eg. homebridge.domain.tld
+
 ## Overview
 Homebridge is a lightweight NodeJS server that emulates the iOS HomeKit API.
 Homebridge Config UI X is a Homebridge Web UI plugin to monitor, manage and control Homebridge from a browser.
@@ -24,11 +28,13 @@ Homebridge Config UI X is a Homebridge Web UI plugin to monitor, manage and cont
 
 ## Configuration
 
-TODO
+Once the Homebridge package is installed, go to the chosen URL and follow the setup wizard.
 
 ## Documentation
 
- * Official documentation: TODO
+ * Official documentation:
+    * Homebridge: https://github.com/nfarina/homebridge
+    * Homebridge Config UI X: https://github.com/oznu/homebridge-config-ui-x/wiki
 
 ## YunoHost specific features
 
@@ -43,8 +49,10 @@ TODO
 ## Links
 
  * Report a bug: https://github.com/SylvainCecchetto/homebridge_ynh/issues
- * App website: TODO
- * Upstream app repository: TODO
+ * App website: https://homebridge.io
+ * Upstream app repository:
+    * Homebridge: https://github.com/nfarina/homebridge/wiki
+    * Homebridge Config UI X: https://github.com/oznu/homebridge-config-ui-x
  * YunoHost website: https://yunohost.org/
 
 ---
